@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-                    # Kernel and Convolution-based filters
+                    # Kernel and Convolution-based eyes
 
 kernRect = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
 kernEllipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
@@ -11,6 +11,33 @@ kernBigEllipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
 
 kernDerivative = np.array([[0, 0, 0], [-5.0, 0.0, 5.0], [0, 0, 0]])
 # kernDerivative = np.array([[0, -5, 0], [-5.0, 0.0, 5.0], [0, 5, 0]])
+
+# backSub = cv2.createBackgroundSubtractorKNN() # Default is good, but edited is faster
+# backSub = cv2.createBackgroundSubtractorKNN(history=3, detectShadows=False)
+backSub = cv2.createBackgroundSubtractorMOG2(history=10, detectShadows=False)
+
+class ghostly():
+    def __init__(self, gamma):
+        self.initialized = False
+        self.gamma = gamma
+
+    def apply(self, frame):
+        if not self.initialized:
+            self.prev = np.copy(frame)
+            self.initialized = True
+            return frame
+        else:
+            frame = frame*(1-self.gamma) + self.prev*self.gamma
+            frame = frame.astype(np.uint8)
+
+            self.prev = np.copy(frame)
+            return frame
+
+ghostFilter = ghostly(.96) #Goes exponential
+
+
+
+
 
 # Convert to grayscale image
 def apGrayscale(frame):
@@ -71,11 +98,13 @@ def apHatFilter(frame):
     return cv2.morphologyEx(frame, cv2.MORPH_BLACKHAT, kernBigEllipse)
     # return cv2.morphologyEx(frame, cv2.MORPH_TOPHAT, kernBigEllipse)
 
-# # Very noir-like
-# def apNoir(frame):
-#     frame = apMedian(apGrayscale(frame),5)
-#     return cv2.threshold(frame, 100,255,cv2.THRESH_BINARY)
-#     # return cv2.threshold(mod, 100,255,cv2.THRESH_BINARY_INV)
+def apLaplacian(frame, surroundings=-1):
+    kern = np.ones((3, 3)) * surroundings
+    kern[1][1] = 8
+    return cv2.filter2D(frame, -1, kern)
+
+                        # Video/Multi-frame eyes
+
 
 # Adaptive thresholding, looks really strange but could be cool. Can blur before or after
 def apAdaptiveThresh(frame):
@@ -84,6 +113,15 @@ def apAdaptiveThresh(frame):
     # # cv2.GaussianBlur(frame, (5, 5), -1)
     # # cv2.medianBlur(frame, 3)
     return frame
+
+def apBackgroundSubtraction(frame):
+    frame = backSub.apply(frame)
+    return frame # Try editing the frame, dilate or erode or something else
+
+def apGhostly(frame):
+    return ghostFilter.apply(frame)
+
+                        # Channel editing eyes
 
 # Color channels swap. Really weird looking, but pretty mundane
 def apChannelSwap(frame, ch1 = 0, ch2 = 2):
@@ -104,17 +142,3 @@ def apOneChannelAsColor(frame, ch1 = 1, min = 80):
         if i != ch1:
             frame[:,:,i] = min
     return frame
-
-def apLaplacian(frame,surroundings = -1):
-    kern = np.ones((3,3))*surroundings
-    kern[1][1] = 8
-    return cv2.filter2D(frame, -1, kern)
-
-
-
-
-    # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY1)
-    # try:
-    #     flow = cv2.calcOpticalFlowFarneback(prev, frame, None,.5,3,15,3,5,1.2,0)
-    # except:
-    #     prev=frame

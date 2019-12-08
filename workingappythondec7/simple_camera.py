@@ -70,8 +70,10 @@ def show_camera(imgQ):
             break
         elif keyCode == 44:
             prop[0] = (prop[0] - 1) % len(neweyes)
+            print("using", neweyes[(prop[0]-1) % len(neweyes)])
         elif keyCode == 46:
             prop[0] = (prop[0] + 1) % len(neweyes)
+            print("using", neweyes[(prop[0] - 1) % len(neweyes)])
 
         totTime = time.time() - now
         # print(totTime*1000);
@@ -103,6 +105,9 @@ if __name__ == "__main__":
     t1 = threading.Thread(target=parseImages, args=("parse", q1), daemon=True)
     t2 = threading.Thread(target=processImages, args=("process", q1, q2, prop),
                           daemon=True)
+
+
+
 
     t1.start()
     t2.start()
