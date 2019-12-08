@@ -1,0 +1,2 @@
+I can currently access t1 functions from t2 by importing t1.hpp at the top of t2.cpp
+Next I need to be able to parse command line args from compile time.

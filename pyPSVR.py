@@ -4,7 +4,10 @@
 # (c) Simon Wood, 25 May 2017
 #
 
+
 import usb
+import usb.core
+import usb.util
 import argparse
 from sys import exit, platform, version_info
 
@@ -81,9 +84,9 @@ if platform == "linux" or platform == "linux2":
 			# Only Detach the Control interface
 			if ifnum == 5:
 				reattach[ifnum] = True
-				#if not psvr.is_kernel_driver_active(ifnum):
-				#	reattach[ifnum] = False
-				#	continue
+				if not psvr.is_kernel_driver_active(ifnum):
+					reattach[ifnum] = False
+					continue
 				try:
 					print("Detaching: %s" % ifnum)
 					#print("%s: %s\n" % (psvr, ifnum))
@@ -98,9 +101,11 @@ cfg = psvr.get_active_configuration()
 
 # Interface 5 -> Endpoint 0x4
 ifnum = cfg[(5,0)].bInterfaceNumber 
-alternate_settting = usb.control.get_interface(psvr, ifnum) 
-intf = usb.util.find_descriptor(cfg, bInterfaceNumber = ifnum, 
-		bAlternateSetting = alternate_settting) 
+# alternate_settting = usb.control.get_interface(psvr, ifnum)
+# intf = usb.util.find_descriptor(cfg, bInterfaceNumber = ifnum,
+# 		bAlternateSetting = alternate_settting)
+
+intf = usb.util.find_descriptor(cfg, bInterfaceNumber = ifnum)
 
 ep = usb.util.find_descriptor(intf,custom_match = \
 		lambda e: \
