@@ -10,6 +10,18 @@ def swap(im, ch1, ch2):
 
     return im
 
+def draw_flow(img, flow, step=10):
+    h, w = img.shape[:2]
+    y, x = np.mgrid[step/2:h:step, step/2:w:step].reshape(2,-1).astype(int)
+    fx, fy = flow[y,x].T
+    lines = np.vstack([x, y, x+fx, y+fy]).T.reshape(-1, 2, 2)
+    lines = np.int32(lines + 0.5)
+    vis = cv.cvtColor(img, cv.COLOR_GRAY2BGR)
+    cv.polylines(vis, lines, 0, (0, 255, 0))
+    for (x1, y1), (_x2, _y2) in lines:
+        cv.circle(vis, (x1, y1), 1, (0, 255, 0), -1)
+    return vis
+
 cap = cv.VideoCapture(0)
 i=0
 while(1):
@@ -76,11 +88,14 @@ while(1):
     # # Use normal canny for edges
     # frame = cv.Canny(frame, 100, 200)
 
-    # frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY1)
-    # try:
-    #     flow = cv.calcOpticalFlowFarneback(prev, frame, None,.5,3,15,3,5,1.2,0)
-    # except:
-    #     prev=frame
+    frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    try:
+        flow = cv.calcOpticalFlowFarneback(prev, frame, None,.5,3,15,3,5,1.2,0)
+        frame = draw_flow(frame, flow)
+
+    except:
+        prev=frame
+
 
 
     # # Implement Laplacian
@@ -90,20 +105,20 @@ while(1):
 
 
     # Implement broken Laplacian which overwrites itself
-    frame = cv.resize(frame, (0,0),fx=.25,fy=.25)
-    sur = -1
-    kern = np.array([[sur, sur, sur], [sur, 8, sur], [sur,sur,sur]])
-    for i in range(1,len(frame)-2):
-        for j in range(1,len(frame[0])-2):
-
-            frame[i][j] *= 9
-            r = sum(sum(frame[i-1:i+2,j-1:j+2,0]))
-            g = sum(sum(frame[i - 1:i + 2, j - 1:j + 2, 1]))
-            b = sum(sum(frame[i - 1:i + 2, j - 1:j + 2, 2]))
-
-            yea = -1*(np.array([r,g,b]))
-            yea = np.clip(yea, 0,255)#.astype('int8')
-            frame[i][j] = yea
+    # frame = cv.resize(frame, (0,0),fx=.25,fy=.25)
+    # sur = -1
+    # kern = np.array([[sur, sur, sur], [sur, 8, sur], [sur,sur,sur]])
+    # for i in range(1,len(frame)-2):
+    #     for j in range(1,len(frame[0])-2):
+    #
+    #         frame[i][j] *= 9
+    #         r = sum(sum(frame[i-1:i+2,j-1:j+2,0]))
+    #         g = sum(sum(frame[i - 1:i + 2, j - 1:j + 2, 1]))
+    #         b = sum(sum(frame[i - 1:i + 2, j - 1:j + 2, 2]))
+    #
+    #         yea = -1*(np.array([r,g,b]))
+    #         yea = np.clip(yea, 0,255)#.astype('int8')
+    #         frame[i][j] = yea
 
 
 
