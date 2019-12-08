@@ -71,11 +71,11 @@ def apHatFilter(frame):
     return cv2.morphologyEx(frame, cv2.MORPH_BLACKHAT, kernBigEllipse)
     # return cv2.morphologyEx(frame, cv2.MORPH_TOPHAT, kernBigEllipse)
 
-# Very noir-like
-def apNoir(frame):
-    frame = apMedian(apGrayscale(frame),5)
-    return cv2.threshold(frame, 100,255,cv2.THRESH_BINARY)
-    # return cv2.threshold(mod, 100,255,cv2.THRESH_BINARY_INV)
+# # Very noir-like
+# def apNoir(frame):
+#     frame = apMedian(apGrayscale(frame),5)
+#     return cv2.threshold(frame, 100,255,cv2.THRESH_BINARY)
+#     # return cv2.threshold(mod, 100,255,cv2.THRESH_BINARY_INV)
 
 # Adaptive thresholding, looks really strange but could be cool. Can blur before or after
 def apAdaptiveThresh(frame):
@@ -103,6 +103,7 @@ def apOneChannelAsColor(frame, ch1 = 1, min = 80):
     for i in range(3):
         if i != ch1:
             frame[:,:,i] = min
+    return frame
 
 def apLaplacian(frame,surroundings = -1):
     kern = np.ones((3,3))*surroundings

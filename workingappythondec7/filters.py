@@ -1,5 +1,6 @@
 import numpy as np
 import cv2 as cv
+import time
 
 
 def swap(im, ch1, ch2):
@@ -24,6 +25,7 @@ def draw_flow(img, flow, step=10):
 
 cap = cv.VideoCapture(0)
 i=0
+flow = None
 while(1):
     ret, frame = cap.read()
 
@@ -88,13 +90,24 @@ while(1):
     # # Use normal canny for edges
     # frame = cv.Canny(frame, 100, 200)
 
-    frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    try:
-        flow = cv.calcOpticalFlowFarneback(prev, frame, None,.5,3,15,3,5,1.2,0)
-        frame = draw_flow(frame, flow)
 
-    except:
-        prev=frame
+
+    # # Optical Flow  # Achieving 200 ms latency. Better than starting but still too slow
+    # frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    # try:
+    #     now = time.time()
+    #
+    #     flow = cv.calcOpticalFlowFarneback(prev, frame, None, .5, 2, 15, 1,
+    #                                            5, 1.2, 0)
+    #
+    #
+    #     flowMag = (flow[:, :, 0] ** 2 + flow[:, :, 1] ** 2) ** .5
+    #     flowMag = flowMag / np.max(flowMag) #* 255.0
+    #     frame = np.multiply(frame, flowMag)
+    #
+    #     print(time.time() - now)
+    # except:
+    #     prev=frame
 
 
 
