@@ -4,7 +4,12 @@ import cv2
 import threading
 from queue import Queue
 from neweyes import *
-
+from PyQt5.uic import loadUi
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog
+import cv2
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 def parseImages(name, q1):
     cap = cv2.VideoCapture()
@@ -28,6 +33,8 @@ def process(frame, prop):
 
 
 def processImages(name, q1, q2, prop):
+    qformat = QImage.Format_RGBA8888
+    # qformat = QImage.Format_RGB888
     while True:
         if q2.qsize() < 100 and not q2.full():  # This check might be useless since we pull from q2 so fast
 
@@ -47,7 +54,11 @@ def processImages(name, q1, q2, prop):
                             cv2.LINE_AA)
 
 
-
+            # frame = QtGui.QImage(frame.data, #Trying to display with QT
+            #                    frame.shape[1],
+            #                    frame.shape[0],
+            #                    frame.strides[0],  # <--- +++
+            #                    qformat)
 
             q2.put(frame)
 
