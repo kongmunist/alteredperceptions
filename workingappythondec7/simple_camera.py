@@ -9,7 +9,10 @@ from neweyes import *
 def parseImages(name, q1):
     cap = cv2.VideoCapture()
     cap.set(cv2.CAP_PROP_FPS, 60)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 0) # These options are spotty depending on your camera setup. On mac webcam this ain't working well.
+
     cap.open(0)
+
 
     if cap.isOpened():
         while q1.qsize() < 100:
@@ -27,6 +30,7 @@ def process(frame, prop):
 def processImages(name, q1, q2, prop):
     while True:
         if q2.qsize() < 100 and not q2.full():  # This check might be useless since we pull from q2 so fast
+
             frame = q1.get()
             frame = process(frame, prop[0])
             propname = neweyes[(prop[0] - 1) % len(neweyes)]
@@ -42,6 +46,9 @@ def processImages(name, q1, q2, prop):
                             cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2,
                             cv2.LINE_AA)
 
+
+
+
             q2.put(frame)
 
 
@@ -55,19 +62,19 @@ def show_camera(imgQ):
 
     while True:
         now = time.time()
-        s = imgQ.qsize()
-        # print(q.qsize())
+        # s = imgQ.qsize()
+        print(q1.qsize(), q2.qsize())
+        # print(q.q.,.,size())
 
-        for i in range(s - 1):
-            imgQ.get()
         img = imgQ.get()
 
         cv2.imshow("USB Cam", img)
 
-        keyCode = cv2.waitKey(15)
+        keyCode = cv2.waitKey(29) # Keeping it near 30 gives consistent frame times, going lower allows ~20 sometimes but also allows ~45
         # Stop the program on the ESC key
         if (keyCode & 0xFF) == 27:
             break
+        # Allow shifting through the lenses
         elif keyCode == 44:
             prop[0] = (prop[0] - 1) % len(neweyes)
             print("using", neweyes[(prop[0]-1) % len(neweyes)])
@@ -76,12 +83,12 @@ def show_camera(imgQ):
             print("using", neweyes[(prop[0] - 1) % len(neweyes)])
 
         totTime = time.time() - now
-        # print(totTime*1000);
+        print(totTime*1000);
         if not fullscreen:  # For some reason, fullscreen doesn't work sometimes if you put it in the beginning of the function. Putting here fixes it
-            # cv2.setWindowProperty("USB Cam", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            cv2.setWindowProperty("USB Cam", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
             fullscreen = True
             print("running")
-        # print(prop[0])
+
     cv2.destroyAllWindows()
 
 
@@ -111,7 +118,7 @@ if __name__ == "__main__":
 
     t1.start()
     t2.start()
-    time.sleep(3)
+    time.sleep(1)
     show_camera(q2)
 
 
