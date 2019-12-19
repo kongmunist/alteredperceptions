@@ -104,7 +104,7 @@ def apBackgroundSubtraction(frame):
     frame = cv2.medianBlur(frame, 3)
     frame = ghostForBacksub.apply(frame)
 
-    frame = cv2.bitwise_and(tmp,tmp, mask=frame)
+    # frame = cv2.bitwise_and(tmp,tmp, mask=frame)
     #frame = apLaplacian(frame)
     return frame # Try editing the frame, dilate or erode or something else
 
@@ -134,6 +134,8 @@ class rainbow():
             if self.rgbfactor[i] > self.scale*2 or self.rgbfactor[i] < 0:
                 self.iterfactor[i] = -self.iterfactor[i]
         self.rgbfactor += self.iterfactor
+
+        self.rgbfactor = np.array([[1],[1],[1]])
         frame = np.multiply(frame, self.rgbfactor)
         print(self.rgbfactor)
         return frame
@@ -146,6 +148,7 @@ def apRainbow(frame):
 def apLinearResize(frame,scale = .15):
     frame = cv2.resize(frame,(0,0),fx=scale,fy=scale)  # 2nd resize is for name to not be super big in corner
     frame = cv2.resize(frame, (640,480), interpolation = cv2.INTER_NEAREST)
+
     return frame
 
 #def apResize(frame, x=.15,y=.15,cycNum = [0.3,.5],inter = cv2.INTER_NEAREST):
