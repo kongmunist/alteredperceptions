@@ -32,8 +32,15 @@ def processImages(name, q1, q2, prop):
     lim = len(neweyes)  
     while True:
         if q2.qsize() < 100 and not q2.full():  # This check might be useless since we pull from q2 so fast
+
+            now = time.time()
             frame = q1.get()
-            frame = process(frame, prop[0],lim)
+            print("get", (time.time()-now)*1000)
+            now = time.time()
+            frame = process(frame.copy(), prop[0],lim)
+            print("process", (time.time() - now) * 1000)
+
+
             propname = neweyes[(prop[0] - 1) % lim]
             # print(propname)
 
@@ -49,7 +56,11 @@ def processImages(name, q1, q2, prop):
             except:
                 pass
 
+
+            now = time.time()
             q2.put(frame)
+            print("put", (time.time() - now) * 1000)
+            print()
 
 
 
@@ -103,12 +114,62 @@ class Window(QWidget):
 
 
 
+# def show_camera(imgQ):
+#
+#     # app = QApplication(sys.argv)
+#     # window = Window(imgQ)
+#     # sys.exit(app.exec_())
+#
+#
+#     print('starting showThread')
+#     window_handle = cv2.namedWindow("USB Cam", cv2.WINDOW_NORMAL)
+#     fullscreen = False
+#
+#     while imgQ.qsize() > 1:
+#         img = imgQ.get()
+#
+#     while True:
+#         now = time.time()
+#         s = imgQ.qsize()
+#         #print(s)
+#
+#         for i in range(s - 1):
+#             imgQ.get()
+#         img = imgQ.get()
+#         totTime = time.time() - now
+#         print(totTime * 1000)
+#         now = time.time()
+#
+#
+#         cv2.imshow("USB Cam", img)
+#
+#         keyCode = cv2.waitKey(1)
+#         # Stop the program on the ESC key
+#         if (keyCode & 0xFF) == 27:
+#             break
+#         elif keyCode == 44:
+#             prop[0] = (prop[0] - 1) % len(neweyes)
+#             print("using", neweyes[(prop[0]-1) % len(neweyes)])
+#         elif keyCode == 46:
+#             prop[0] = (prop[0] + 1) % len(neweyes)
+#             print("using", neweyes[(prop[0] - 1) % len(neweyes)])
+#
+#
+#         totTime = time.time() - now
+#         print(totTime*1000)
+#         print()
+#
+#         if not fullscreen:
+#             # For some reason, fullscreen doesn't work sometimes if you put it in the beginning of the function. Putting here fixes it
+#             cv2.setWindowProperty("USB Cam", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+#             fullscreen = True
+#             print("running with screen size ", end = "")
+#             print(frameSize)
+#
+#     cv2.destroyAllWindows()
+
+
 def show_camera(imgQ):
-
-    # app = QApplication(sys.argv)
-    # window = Window(imgQ)
-    # sys.exit(app.exec_())
-
 
     print('starting showThread')
     window_handle = cv2.namedWindow("USB Cam", cv2.WINDOW_NORMAL)
@@ -125,10 +186,14 @@ def show_camera(imgQ):
         for i in range(s - 1):
             imgQ.get()
         img = imgQ.get()
+        # totTime = time.time() - now
+        # print(totTime * 1000)
+        # now = time.time()
+
 
         cv2.imshow("USB Cam", img)
 
-        keyCode = cv2.waitKey(15)
+        keyCode = cv2.waitKey(1)
         # Stop the program on the ESC key
         if (keyCode & 0xFF) == 27:
             break
@@ -140,8 +205,9 @@ def show_camera(imgQ):
             print("using", neweyes[(prop[0] - 1) % len(neweyes)])
 
 
-        totTime = time.time() - now
-        print(totTime*1000)
+        # totTime = time.time() - now
+        # print(totTime*1000)
+        # print()
 
         if not fullscreen:
             # For some reason, fullscreen doesn't work sometimes if you put it in the beginning of the function. Putting here fixes it
@@ -151,8 +217,6 @@ def show_camera(imgQ):
             print(frameSize)
 
     cv2.destroyAllWindows()
-
-
 
 
 if __name__ == "__main__":

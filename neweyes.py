@@ -123,27 +123,27 @@ itera = .08
 rgbfactor = np.array([0,scale*2,scale*2])
 iters = np.array([itera, itera, -itera])
 
-class rainbow():
-    def __init__(self, scale, iters):
-        self.scale = scale
-        self.iters = iters
-        self.rgbfactor = np.array([0,scale*2, scale*2])
-        self. iterfactor = np.array([iters, iters, -iters])
-    def apply(self, frame):
-        for i in range(3):
-            if self.rgbfactor[i] > self.scale*2 or self.rgbfactor[i] < 0:
-                self.iterfactor[i] = -self.iterfactor[i]
-        self.rgbfactor += self.iterfactor
-
-        self.rgbfactor = np.array([[1],[1],[1]])
-        frame = np.multiply(frame, self.rgbfactor)
-        print(self.rgbfactor)
-        return frame
-
-rainbowCycle = rainbow(0.4, .08)
-def apRainbow(frame):
-    frame = rainbowCycle.apply(frame) 
-    return frame
+# class rainbow():
+#     def __init__(self, scale, iters):
+#         self.scale = scale
+#         self.iters = iters
+#         self.rgbfactor = np.array([0,scale*2, scale*2])
+#         self. iterfactor = np.array([iters, iters, -iters])
+#     def apply(self, frame):
+#         for i in range(3):
+#             if self.rgbfactor[i] > self.scale*2 or self.rgbfactor[i] < 0:
+#                 self.iterfactor[i] = -self.iterfactor[i]
+#         self.rgbfactor += self.iterfactor
+#
+#         self.rgbfactor = np.array([[1],[1],[1]])
+#         frame = np.multiply(frame, self.rgbfactor)
+#         print(self.rgbfactor)
+#         return frame
+#
+# rainbowCycle = rainbow(0.4, .08)
+# def apRainbow(frame):
+#     frame = rainbowCycle.apply(frame)
+#     return frame
 
 def apLinearResize(frame,scale = .15):
     frame = cv2.resize(frame,(0,0),fx=scale,fy=scale)  # 2nd resize is for name to not be super big in corner
